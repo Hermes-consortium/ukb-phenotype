@@ -1,0 +1,24 @@
+.Rproj.user
+.Rhistory
+.DS_Store
+Icon?
+!git-include/
+git-exclude/
+
+admin/
+data/
+# scripts/
+# exploratory/
+results/
+writing/
+presentation/
+report/
+
+# uncomment the following to ignore specific folder / files
+
+# admin/
+# results/
+# *.tsv
+# *.csv
+# writing/
+job_log/
