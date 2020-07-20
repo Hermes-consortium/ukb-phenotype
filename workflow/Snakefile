@@ -1,0 +1,33 @@
+# The main entry point of your workflow.
+# Run from root dir (parent dir of this Snakefile)
+# After configuring, running snakemake -n in a clone of this repository should successfully execute a dry-run of the workflow.
+
+# --------------
+# Configuration
+# --------------
+configfile: "workflow/config/main.yaml"
+report: "workflow/report/workflow.rst"
+
+# Allow users to fix the underlying OS via singularity.
+singularity: "docker://continuumio/miniconda3"
+
+# --------------
+# Target file
+# --------------
+
+# --------------
+# Rules
+# --------------
+rule get_data_profile:
+    input:
+        "data/app{app_id}/ukb{data_id}.html"
+    output:
+        "data/app{app_id}/ukb{data_id}.profile.tsv"
+    script:
+        "scripts/parse_html.R"
+
+
+# --------------
+# Load rules
+# --------------
+# include: "rules/list_file.smk"
