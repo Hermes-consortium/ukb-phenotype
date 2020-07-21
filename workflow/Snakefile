@@ -26,6 +26,30 @@ rule get_data_profile:
     script:
         "scripts/parse_html.R"
 
+rule split_by_type:
+    input:
+        data="data/app{app_id}/ukb{data_id}.csv",
+        profile="data/app{app_id}/ukb{data_id}.profile.csv"
+    output:
+        "data/app{app_id}/ukb{data_id}_{type}_wide.csv"
+    shell:
+        """
+        awk -F, -vOFS=, -vFPAT='([^,]*)|("[^"]+")' -vTYPE={wildcards.type} '
+            NR==FNR {{if ($1 == "eid" || $6 == TYPE) {{count++; a[count]=$1+1}}; next}}
+            {{for (i=1; i<=count; i++) printf "%s%s", $a[i], i==count?ORS:OFS}}
+        ' {input.profile} {input.data} > {output}
+        """
+
+# rule transform_wide_to_long:
+#     input:
+#         "data/app{app_id}/ukb{data_id}_{type}_wide.csv"
+#     output:
+#         "data/app{app_id}/ukb{data_id}_{type}_long.csv}"
+#     script:
+#         "scripts/wide_to_long.R"
+
+
+
 
 # --------------
 # Load rules

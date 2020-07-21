@@ -10,10 +10,10 @@ UKB_data_dict <- read_html(ukb_html)
 # list of target db by type
 # load data
 
-df <- html_nodes(UKB_data_dict, "table") %>% .[2] %>% 
-  html_table() %>% 
-  .[[1]] %>% 
-  as_tibble() %>% 
+df <- html_nodes(UKB_data_dict, "table") %>% .[2] %>%
+  html_table() %>%
+  .[[1]] %>%
+  as_tibble() %>%
   mutate(db = case_when(UDI == "eid" ~ "eid",
                         Type == "Integer" ~ "int",
                         Type == "Categorical (single)" ~ "singleCat",
@@ -23,5 +23,4 @@ df <- html_nodes(UKB_data_dict, "table") %>% .[2] %>%
                         TRUE ~ "other"))
 
 # write table
-write_tsv(df, snakemake@output[[1]])
-
+write_csv(df, snakemake@output[[1]])

@@ -39,6 +39,9 @@ ukbconv ${FILE_ID}.enc_ukb docs
 # convert to tsv
 ukbconv ${FILE_ID}.enc_ukb txt
 
+# convert to csv
+ukbconv ${FILE_ID}.enc_ukb csv
+
 # rename and create a timestamp
 DATE=$(grep 'REX: ' ${FILE_ID}.log | awk -v FS='REX: |T' '{print $2}')
 APP_ID=$(grep 'Application ' ${FILE_ID}.log | awk -v FS='[ ,]' '{print $2}')
