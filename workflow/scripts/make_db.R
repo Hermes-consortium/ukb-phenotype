@@ -12,12 +12,12 @@ output <- snakemake@output
 # For testing
 # app_id <- "app15422"
 # data_id <- "ukb42306"
-# 
+#
 # input <- list(
 #   data="test.csv",
 #   profile="data/app15422/ukb42306.profile.csv"
 # )
-# 
+#
 # output <- list(
 #   db="data/ukb.sqlite"
 # )
@@ -28,7 +28,7 @@ df <- vroom(input$data)
 df_profile <- vroom(input$profile) %>%
   mutate(r_type = case_when(db %in% c("int", "singleCat", "multiCat", "eid") ~ "i",
                             db %in% c("str", "other") ~ "c",
-                            db == "float" ~ "d")) %>% 
+                            db == "float" ~ "d")) %>%
   nest_by(db)
 
 # Separate database based on datatype, preserving eid
@@ -36,7 +36,7 @@ df_profile <- vroom(input$profile) %>%
 read <- function(file, cols, type){
   cols <- c("eid", cols)
   vroom(file, col_select = cols,
-        col_types = c("i", type) %>% set_names(cols)) 
+        col_types = c("i", type) %>% set_names(cols))
 }
 
 
@@ -67,11 +67,11 @@ for (type in names(list_df_type_long)) {
 
 # TEST =============
 # df <- dbGetQuery(db, 'SELECT * FROM main_int WHERE value IS NOT NULL')
-# 
+#
 # main_int_db <- tbl(db, "main_int")
-# 
+#
 # main_int_db %>% filter(!is.na(value))
-# 
+#
 # main_int_db %>% show_query()
 
 dbDisconnect(db)

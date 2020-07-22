@@ -40,18 +40,28 @@ rule split_by_type:
         ' {input.profile} {input.data} > {output}
         """
 
-# rule transform_wide_to_long:
-#     input:
-#         "data/app{app_id}/ukb{data_id}_{type}_wide.csv"
-#     output:
-#         "data/app{app_id}/ukb{data_id}_{type}_long.csv}"
-#     script:
-#         "scripts/wide_to_long.R"
+rule transform_wide_to_long:
+    input:
+        "data/app{app_id}/ukb{data_id}_{type}_wide.csv"
+    output:
+        "data/app{app_id}/ukb{data_id}_{type}_long.csv"
+    script:
+        "scripts/wide_to_long.R"
 
+rule make_db:
+    input:
+        data=expand("data/app{app_id}/ukb{data_id}.csv",
+                    app_id=['15422'], data_id=['42306']),
+        profile=expand("data/app{app_id}/ukb{data_id}.profile.csv",
+                       app_id=['15422'], data_id=['42306'])
+    output:
+        db="data/ukb.sqlite"
+    script:
+        "scripts/make_db.R"
 
 
 
 # --------------
 # Load rules
 # --------------
-# include: "rules/list_file.smk"
+include: "rules/phenotyping.smk"
