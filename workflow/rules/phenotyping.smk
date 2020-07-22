@@ -52,7 +52,7 @@ rule get_eid_case:
             raise ValueError
 
         codes = codes.str.replace("[.*]", "")
-        codes = [c + ".*" if len(c) < 4 else c for c in codes]
+        codes = [c + ".{1,2}" if len(c) < 4 else c for c in codes]
 
         regex = "(" + "|".join(codes) + ")"
         cols_ix = [str(header.get_loc(c) + 1) for c in cols if c in header]
