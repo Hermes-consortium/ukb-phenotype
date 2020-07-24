@@ -31,7 +31,7 @@ ukbunpack ${FILE_ID}.enc k15422r42306.key
 
 # STEP 3: Conversion ---------
 # downloads encoding data (required by ukbconv)
-wget  -nd  biobank.ctsu.ox.ac.uk/crystal/util/encoding.ukb
+wget -nd biobank.ctsu.ox.ac.uk/crystal/util/encoding.ukb
 
 # create data dictionary
 ukbconv ${FILE_ID}.enc_ukb docs

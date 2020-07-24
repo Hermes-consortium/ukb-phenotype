@@ -1,1 +1,4 @@
 target_app: "9922"
+data_source:
+  - hesin_diag
+  - hesin_oper

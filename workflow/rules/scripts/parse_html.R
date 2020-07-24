@@ -19,8 +19,7 @@ df <- html_nodes(UKB_data_dict, "table") %>% .[2] %>%
                         Type == "Categorical (single)" ~ "singleCat",
                         Type == "Categorical (multiple)" ~ "multiCat",
                         Type == "Continuous" ~ "float",
-                        Type %in% c("Text", "Date", "Time") ~ "str",
-                        TRUE ~ "other"))
+                        TRUE ~ "str"))
 
 # write table
-write_csv(df, snakemake@output[[1]])
+write_tsv(df, snakemake@output[[1]])

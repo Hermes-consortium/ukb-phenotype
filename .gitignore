@@ -1,6 +1,10 @@
+!scripts/
+!workflow/
+
 .Rproj.user
 .Rhistory
 .DS_Store
+.snakemake/
 Icon?
 !git-include/
 git-exclude/
@@ -21,4 +25,4 @@ report/
 # *.tsv
 # *.csv
 # writing/
-job_log/
+job_logs/

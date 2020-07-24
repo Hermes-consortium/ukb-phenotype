@@ -3,6 +3,7 @@
 # --------------
 import pandas as pd
 from pathlib import Path
+import yaml
 
 configfile: "workflow/config/phenotype.yaml"
 report: "workflow/report/workflow.rst"
@@ -45,6 +46,9 @@ rule get_eid_case:
         elif wildcards.dataset == "hesin_oper":
             query = 'Source == "OPCS4"'
             cols = ["eid", "oper4"]
+        elif wildcards.dataset == "death_cause":
+            query = 'Source == "ICD10"'
+            cols = ["eid", "cause_icd10"]
 
         codes = df_code.query(query).Code
 
@@ -66,7 +70,8 @@ def expect_data(wc):
     dict_dataset = dict(ICD9 = 'hesin_diag', ICD10 = 'hesin_diag', OPCS4 = 'hesin_oper')
     dataset = df_code.query('Source in @dict_dataset')\
                 .Source.replace(dict_dataset).unique().tolist()
-    files = [Path("results") / ("app" + wc.app_id) / wc.pheno / (d + ".txt") for d in dataset]
+    files = [Path("results") / ("app" + wc.app_id) / wc.pheno / (d + ".txt")\
+                for d in dataset if d in config["data_source"]]
     return [f.as_posix() for f in files]
 
 rule concat_data:
@@ -74,5 +79,25 @@ rule concat_data:
         expect_data
     output:
         "results/app{app_id}/{pheno}/all.txt"
+    run:
+        # path = Path("results") / ("app" + wildcards.app_id) / wildcards.pheno
+        # file_avail = [f.stem for f in list(path.glob("*.txt"))]
+        # files = [path / (d + ".txt") for d in params.data if d in file_avail]
+        # file_str = [f.as_posix() for f in files]
+
+        shell("cat {input} | sort -u > {output}")
+
+def get_composite_rule(wc):
+    path = Path("data") / "composite_pheno_rule" / (wc.pheno + ".yaml")
+    with open(path, "r") as f:
+        phenos = yaml.full_load(f)
+    files = [Path("results") / ("app" + wc.app_id) / p / "all.txt" for p in phenos]
+    return [f.as_posix() for f in files]
+
+rule combine_pheno:
+    input:
+        get_composite_rule
+    output:
+        "results/app{app_id}/composite_pheno/{pheno}.txt"
     shell:
         "cat {input} | sort -u > {output}"
