@@ -25,7 +25,6 @@ rule all_pheno:
     input:
         *all_pheno()
 
-
 # --------------
 # Rules
 # --------------
@@ -35,7 +34,7 @@ rule get_eid_case:
         code_list="data/code_list/{pheno}.tsv",
         data="data/app{app_id}/{dataset}.txt"
     output:
-        "results/app{app_id}/{pheno}/{dataset}.txt"
+        "data/app{app_id}/ehr_case/{pheno}/{dataset}.txt"
     run:
         header = pd.read_table(input.data, nrows=1).columns
         df_code = pd.read_table(input.code_list)
@@ -65,12 +64,19 @@ rule get_eid_case:
         shell("grep -wE '{regex}' <(cut -f{cols_ix_merged} {input.data}) \
                | cut -f{cols_ix[0]} | sort -u > {output}")
 
+
 def expect_data(wc):
     df_code = pd.read_table(Path("data") / "code_list" / (wc.pheno + ".tsv"))
-    dict_dataset = dict(ICD9 = 'hesin_diag', ICD10 = 'hesin_diag', OPCS4 = 'hesin_oper')
-    dataset = df_code.query('Source in @dict_dataset')\
-                .Source.replace(dict_dataset).unique().tolist()
-    files = [Path("results") / ("app" + wc.app_id) / wc.pheno / (d + ".txt")\
+    dict_dataset = dict(ICD9 = ['hesin_diag'],
+                        ICD10 = ['hesin_diag', 'death_cause'],
+                        OPCS4 = ['hesin_oper'])
+    data_source = df_code.query('Source in @dict_dataset').Source.unique().tolist()
+
+    dataset = [v for k, v in dict_dataset.items() if k in data_source]
+    dataset = [i for d in dataset for i in d]
+    dataset = list(set(dataset))
+
+    files = [Path("data") / ("app" + wc.app_id) / "ehr_case" / wc.pheno / (d + ".txt")\
                 for d in dataset if d in config["data_source"]]
     return [f.as_posix() for f in files]
 
@@ -78,7 +84,7 @@ rule concat_data:
     input:
         expect_data
     output:
-        "results/app{app_id}/{pheno}/all.txt"
+        "data/app{app_id}/ehr_case/{pheno}/all.txt"
     run:
         # path = Path("results") / ("app" + wildcards.app_id) / wildcards.pheno
         # file_avail = [f.stem for f in list(path.glob("*.txt"))]
@@ -91,13 +97,13 @@ def get_composite_rule(wc):
     path = Path("data") / "composite_pheno_rule" / (wc.pheno + ".yaml")
     with open(path, "r") as f:
         phenos = yaml.full_load(f)
-    files = [Path("results") / ("app" + wc.app_id) / p / "all.txt" for p in phenos]
+    files = [Path("data") / ("app" + wc.app_id) / "ehr_case" / p / "all.txt" for p in phenos]
     return [f.as_posix() for f in files]
 
 rule combine_pheno:
     input:
         get_composite_rule
     output:
-        "results/app{app_id}/composite_pheno/{pheno}.txt"
+        "data/app{app_id}/ehr_case/composite_pheno/{pheno}.txt"
     shell:
         "cat {input} | sort -u > {output}"

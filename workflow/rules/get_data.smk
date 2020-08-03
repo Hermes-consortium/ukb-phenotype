@@ -142,15 +142,44 @@ rule pivot_longer:
         "scripts/wide_to_long.R"
 
 # put into sqlite db --------------------------------
-rule into_sqlite:
+rule ukb_to_db:
     input:
         expand("data/app{app_id}/by_type/ukb{data_id}_{type}_long.csv",
                type = ["singleCat", "multiCat", "str", "int", "float"],
                allow_missing = True)
     output:
-        "data/app{app_id}/ukb{data_id}.sqlite"
+        "data/app{app_id}/ukb{data_id}.db"
+    params:
+        overwrite_db = False,
+        overwrite_table = False
     script:
-        "scripts/into_sqlite.R"
+        "scripts/ukb_to_sqlite.R"
+
+rule ehr_to_db:
+    input:
+        expand("data/app{app_id}/{dataset}.txt",
+               dataset = ["hesin", "hesin_diag", "hesin_oper", "death", "death_cause"],
+               allow_missing = True)
+    output:
+        "data/app{app_id}/ehr.db"
+    params:
+        overwrite_db = False,
+        overwrite_table = False,
+        append_table = False
+    script:
+        "scripts/ehr_to_sqlite.R"
+
+# create parquet partitioned dataset
+rule ukb_to_parquet:
+    input:
+        expand("data/app{app_id}/by_type/ukb{data_id}_{type}_long.csv",
+               type = ["singleCat", "multiCat", "str", "int", "float"],
+               allow_missing = True)
+    output:
+        directory("data/app={app_id}/set=ukb{data_id}")
+    script:
+        "scripts/ukb_to_parquet.R"
+
 
 # rule conv_data_subset:
 #     input:

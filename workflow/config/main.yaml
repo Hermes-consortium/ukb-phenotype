@@ -6,3 +6,8 @@
 # Target Directories
 # ==================
 dir_data: "data/app15422/"
+
+dict_dataset:
+  ICD9: ['hesin_diag']
+  ICD10: ['hesin_diag', 'death_cause']
+  OPCS4: ['hesin_oper']  

@@ -34,21 +34,23 @@ rule split_by_type:
         """
 
 
-rule make_db:
-    input:
-        data=expand("data/app{app_id}/ukb{data_id}.csv",
-                    app_id=['15422'], data_id=['42306']),
-        profile=expand("data/app{app_id}/ukb{data_id}.profile.csv",
-                       app_id=['15422'], data_id=['42306'])
-    output:
-        db="data/ukb.sqlite"
-    script:
-        "scripts/make_db.R"
+# rule make_db:
+#     input:
+#         data=expand("data/app{app_id}/ukb{data_id}.csv",
+#                     app_id=['15422'], data_id=['42306']),
+#         profile=expand("data/app{app_id}/ukb{data_id}.profile.csv",
+#                        app_id=['15422'], data_id=['42306'])
+#     output:
+#         db="data/ukb.sqlite"
+#     script:
+#         "scripts/make_db.R"
 
 
 
 # --------------
 # Load rules
 # --------------
-include: "rules/phenotyping.smk"
+include: "rules/phenotyping_ehr.smk"
 include: "rules/get_data.smk"
+# include: "rules/query_db.smk"
+include: "rules/query.smk"
